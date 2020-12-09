@@ -1,0 +1,5 @@
+[bot]
+    command_prefix = "?"
+
+[update_checker]
+    launcher_meta_base = "https://launchermeta.mojang.com/"
