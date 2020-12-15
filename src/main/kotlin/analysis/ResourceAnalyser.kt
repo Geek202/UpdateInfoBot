@@ -5,15 +5,20 @@ import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
 
 interface ResourceAnalyser<R : ResultSection<R>> : Analyser<Path, R>, FileVisitor<Path> {
-    override fun analyse(fs: FileSystem) {
+
+    var phase: Analyser.Phase?
+
+    override fun analyse(fs: FileSystem, phase: Analyser.Phase) {
         for (directory in fs.rootDirectories) {
+            this.phase = phase
             Files.walkFileTree(directory, this)
+            this.phase = null
         }
     }
 
     override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
         if (file.endsWith(".class") || !shouldAnalyse(file)) return FileVisitResult.CONTINUE
-        analyse(file)
+        analyse(file, phase!!)
         return FileVisitResult.CONTINUE
     }
 

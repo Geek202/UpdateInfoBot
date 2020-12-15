@@ -13,9 +13,11 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 class VersionJsonAnalyser : ResourceAnalyser<VersionJsonAnalyser.VersionJsonResult> {
+    override var phase: Analyser.Phase? = null
+
     private var res: VersionJsonResult? = null
 
-    override fun analyse(item: Path) {
+    override fun analyse(item: Path, phase: Analyser.Phase) {
         val obj = GSON.fromJson(Files.newBufferedReader(item), JsonObject::class.java)
         LOGGER.debug("version.json: {}", obj)
         val splitPackVersion = obj["pack_version"].isJsonObject
@@ -52,8 +54,8 @@ class VersionJsonAnalyser : ResourceAnalyser<VersionJsonAnalyser.VersionJsonResu
         return "version.json analysis"
     }
 
-    override fun getPhase(): Analyser.Phase {
-        return Analyser.Phase.CLIENT
+    override fun getPhases(): Set<Analyser.Phase> {
+        return setOf(Analyser.Phase.CLIENT)
     }
 
     class VersionJsonResult(

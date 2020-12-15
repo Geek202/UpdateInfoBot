@@ -9,9 +9,14 @@ import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
 
 interface ClassAnalyser<R : ResultSection<R>> : Analyser<ClassNode, R>, FileVisitor<Path> {
-    override fun analyse(fs: FileSystem) {
+
+    var phase: Analyser.Phase?
+
+    override fun analyse(fs: FileSystem, phase: Analyser.Phase) {
         for (directory in fs.rootDirectories) {
+           this. phase = phase
             Files.walkFileTree(directory, this)
+            this.phase = null
         }
     }
 
@@ -23,7 +28,7 @@ interface ClassAnalyser<R : ResultSection<R>> : Analyser<ClassNode, R>, FileVisi
             val classNode = ClassNode(ASM9)
             reader.accept(classNode, 0)
             if (shouldAnalyse(classNode.name))
-                analyse(classNode)
+                analyse(classNode, phase!!)
         }
 
         return FileVisitResult.CONTINUE

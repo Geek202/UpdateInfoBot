@@ -6,6 +6,7 @@ import me.geek.tom.mcdiffer.json.MinecraftVersionJson
 import me.geek.tom.mcupdateinfo.analysis.impl.ClassCountAnalyser
 import me.geek.tom.mcupdateinfo.analysis.impl.FieldSpottingAnalyser
 import me.geek.tom.mcupdateinfo.analysis.impl.VersionJsonAnalyser
+import me.geek.tom.mcupdateinfo.analysis.impl.VersionManifestAnalyser
 import me.geek.tom.mcupdateinfo.config.botConfig
 import me.geek.tom.mcupdateinfo.util.LoggingMessage
 import me.geek.tom.mcupdateinfo.util.toJarURI
@@ -43,29 +44,38 @@ class VersionAnalyser(private val version: MinecraftVersionJson) {
         }
 
         val analysers: List<Analyser<*, *>> = listOf(
-            VersionJsonAnalyser(),
-            ClassCountAnalyser(),
-            FieldSpottingAnalyser()
+                VersionManifestAnalyser(),
+                VersionJsonAnalyser(),
+                ClassCountAnalyser(),
+                FieldSpottingAnalyser()
         )
 
-        analysers.forEach { it.resetState() }
-        for (analyser in analysers) {
-            val phase = analyser.getPhase()
-            logging.updateMessage("Running ${analyser.getTitle()} for phase: $phase...")
+        analysers.forEach {
+            it.resetState()
+            logging.updateMessage("Running ${it.getTitle()} against version manifest...")
+            it.analyseManifest(version)
+        }
 
-            val jar = when (phase) {
-                Analyser.Phase.CLIENT -> clientJar
-                Analyser.Phase.SERVER -> serverJar
-                Analyser.Phase.MERGED -> mergedJar
-                Analyser.Phase.MAPPED -> mergedJar
-            }
+        for (phase in Analyser.Phase.values()) {
+            for (analyser in analysers) {
+                val phases = analyser.getPhases()
+                if (!phases.contains(phase)) continue
+                logging.updateMessage("Running ${analyser.getTitle()} for phase: $phase...")
 
-            try {
-                FileSystems.newFileSystem(jar.toJarURI(), mapOf<String, Any>())
-            } catch (e: FileSystemAlreadyExistsException) {
-                FileSystems.getFileSystem(jar.toJarURI())
-            }.use { fs ->
-                analyser.analyse(fs)
+                val jar = when (phase) {
+                    Analyser.Phase.CLIENT -> clientJar
+                    Analyser.Phase.SERVER -> serverJar
+                    Analyser.Phase.MERGED -> mergedJar
+                    Analyser.Phase.MAPPED -> mergedJar
+                }
+
+                try {
+                    FileSystems.newFileSystem(jar.toJarURI(), mapOf<String, Any>())
+                } catch (e: FileSystemAlreadyExistsException) {
+                    FileSystems.getFileSystem(jar.toJarURI())
+                }.use { fs ->
+                    analyser.analyse(fs, phase)
+                }
             }
         }
         return analysers.stream().map { it.completeAnalysis() }.collect(Collectors.toList())

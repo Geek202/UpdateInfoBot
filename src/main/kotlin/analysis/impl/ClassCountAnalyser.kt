@@ -11,6 +11,8 @@ import org.objectweb.asm.tree.ClassNode
 
 class ClassCountAnalyser : ClassAnalyser<ClassCountAnalyser.ClassCountResults> {
 
+    override var phase: Analyser.Phase? = null
+
     private var total = 0 //
     private var classes = 0
     private var abstractClasses = 0
@@ -19,7 +21,7 @@ class ClassCountAnalyser : ClassAnalyser<ClassCountAnalyser.ClassCountResults> {
     private var innerClasses = 0 //
     private var enums = 0 //
 
-    override fun analyse(item: ClassNode) {
+    override fun analyse(item: ClassNode, phase: Analyser.Phase) {
         total++
         if (item.outerClass != null) {
             innerClasses++
@@ -73,8 +75,8 @@ class ClassCountAnalyser : ClassAnalyser<ClassCountAnalyser.ClassCountResults> {
         return "Basic class analysis"
     }
 
-    override fun getPhase(): Analyser.Phase {
-        return Analyser.Phase.MERGED
+    override fun getPhases(): Set<Analyser.Phase> {
+        return setOf(Analyser.Phase.MERGED)
     }
 
     class ClassCountResults(

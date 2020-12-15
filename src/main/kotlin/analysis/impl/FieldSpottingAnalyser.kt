@@ -10,9 +10,11 @@ import org.objectweb.asm.tree.ClassNode
 
 class FieldSpottingAnalyser : ClassAnalyser<FieldSpottingAnalyser.FieldSpottingResults> {
 
+    override var phase: Analyser.Phase? = null
+
     private var codecs = 0
 
-    override fun analyse(item: ClassNode) {
+    override fun analyse(item: ClassNode, phase: Analyser.Phase) {
         for (field in item.fields) {
             if (field.desc == "Lcom/mojang/serialization/Codec;") {
                 codecs++
@@ -36,8 +38,8 @@ class FieldSpottingAnalyser : ClassAnalyser<FieldSpottingAnalyser.FieldSpottingR
         return "Field spotting analysis"
     }
 
-    override fun getPhase(): Analyser.Phase {
-        return Analyser.Phase.MERGED
+    override fun getPhases(): Set<Analyser.Phase> {
+        return setOf(Analyser.Phase.MERGED)
     }
 
     class FieldSpottingResults(
