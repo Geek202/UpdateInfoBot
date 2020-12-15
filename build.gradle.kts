@@ -6,7 +6,10 @@ plugins {
 }
 
 group = "me.geek.tom"
-version = "1.0-SNAPSHOT"
+val ENV = System.getenv()
+var build = ENV["BUILD_NUMBER"]?: "local"
+val baseVersion = "1.0"
+version = "$baseVersion+build.$build"
 
 repositories {
     mavenCentral()
@@ -67,6 +70,7 @@ dependencies {
     implementation("com.mojang:datafixerupper:4.0.26")
 
     // Analysis
+    implementation("com.soywiz.korlibs.korio:korio-jvm:1.10.2")
     implementation("me.geek.tom:MCAutoCodeDiff:1.1-SNAPSHOT")
     implementation("net.fabricmc:stitch:0.5.1+build.77")
     implementation("org.cadixdev:lorenz-io-proguard:0.5.4")
