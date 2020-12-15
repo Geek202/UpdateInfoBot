@@ -34,6 +34,7 @@ pipeline {
     always {
       script {
         archiveArtifacts(artifacts: '**/build/libs/*.jar', fingerprint: true, onlyIfSuccessful: true, allowEmptyArchive: true)
+        archiveArtifacts(artifacts: '**/build/distributions/*', fingerprint: true, onlyIfSuccessful: true, allowEmptyArchive: true)
 
         if (env.CHANGE_ID == null) {
           discordSend(
