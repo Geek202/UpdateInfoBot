@@ -92,7 +92,7 @@ class VersionCheckExtension(bot: ExtensibleBot) : Extension(bot) {
             signature(::VersionArguments)
 
             check {
-                buildInfo.isDev() && it.member?.id == botConfig.owner
+                buildInfo.isDev() || it.member?.id == botConfig.owner
             }
 
             action {
