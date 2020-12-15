@@ -6,5 +6,6 @@ object BotSpec : ConfigSpec() {
 
     val token by required<String>()
     val commandPrefix by required<String>()
+    val owner by required<Long>()
 
 }

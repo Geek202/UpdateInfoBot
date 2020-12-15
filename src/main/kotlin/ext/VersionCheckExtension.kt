@@ -85,37 +85,39 @@ class VersionCheckExtension(bot: ExtensibleBot) : Extension(bot) {
             }
         }
 
-        if (buildInfo.isDev()) {
-            command {
-                name = "update"
-                description = "debug command to trigger version analysis"
+        command {
+            name = "update"
+            description = "debug command to trigger version analysis"
 
-                signature(::VersionArguments)
+            signature(::VersionArguments)
 
-                action {
-                    with(parse(::VersionArguments)) {
-                        if (versions == null) {
-                            message.botEmbed {
-                                color = Color.RED
-                                description = "Versions have not been fetched yet, check back soon!"
-                            }
-                            return@action
+            check {
+                buildInfo.isDev() && it.member?.id == botConfig.owner
+            }
+
+            action {
+                with(parse(::VersionArguments)) {
+                    if (versions == null) {
+                        message.botEmbed {
+                            color = Color.RED
+                            description = "Versions have not been fetched yet, check back soon!"
                         }
+                        return@action
+                    }
 
-                        val versionId = versions!!.latest.get(type)
-                        val version = versions!!.versions.find { it.id == versionId }
-                        if (version == null) {
-                            message.botEmbed {
-                                color = Color.RED
-                                description = "Uh oh. Looks like the latest version doesn't exist ¯\\_(ツ)_/¯"
-                            }
-                        } else {
-                            message.botEmbed {
-                                color = Color.GREEN
-                                description = "Triggering build analysis!"
-                            }
-                            bot.send(MinecraftUpdateEvent(bot, version))
+                    val versionId = versions!!.latest.get(type)
+                    val version = versions!!.versions.find { it.id == versionId }
+                    if (version == null) {
+                        message.botEmbed {
+                            color = Color.RED
+                            description = "Uh oh. Looks like the latest version doesn't exist ¯\\_(ツ)_/¯"
                         }
+                    } else {
+                        message.botEmbed {
+                            color = Color.GREEN
+                            description = "Triggering build analysis!"
+                        }
+                        bot.send(MinecraftUpdateEvent(bot, version))
                     }
                 }
             }

@@ -14,6 +14,7 @@ import com.kotlindiscord.kord.extensions.ExtensibleBot
 import me.geek.tom.mcupdateinfo.config.botConfig
 import me.geek.tom.mcupdateinfo.config.buildInfo
 import me.geek.tom.mcupdateinfo.ext.AnalysisExtension
+import me.geek.tom.mcupdateinfo.ext.UtilsExtension
 import me.geek.tom.mcupdateinfo.ext.VersionCheckExtension
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
@@ -39,6 +40,8 @@ suspend fun main(args: Array<String>) {
 
     bot.addExtension(VersionCheckExtension::class)
     bot.addExtension(AnalysisExtension::class)
+    if (buildInfo.isDev())
+        bot.addExtension(UtilsExtension::class)
 
     LOGGER.info("Starting bot...")
     bot.start(

@@ -23,7 +23,7 @@ class BotConfig internal constructor() {
         addSpec(UpdateAnalysisSpec)
     }
         .from.toml.resource("default.toml", false)
-        .from.toml.file("config.toml")
+        .from.toml.watchFile("config.toml")
 
     // Update checker
 
@@ -36,6 +36,7 @@ class BotConfig internal constructor() {
     // Bot
     val token: String get() = config[BotSpec.token]
     val prefix: String get() = config[BotSpec.commandPrefix]
+    val owner: Snowflake get() = Snowflake(config[BotSpec.owner])
     val dataDir = File("version_data")
 
     // Emoji
