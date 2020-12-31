@@ -10,6 +10,12 @@ pipeline {
 
   stages {
     stage('Notify-Build-Start') {
+      when {
+        not {
+          changeRequest()
+        }
+      }
+      
       steps {
         discordSend(
           title: "${WEBHOOK_TITLE} Started",
